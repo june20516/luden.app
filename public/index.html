@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Luden — Play, Ex Nihilo.</title>
+  <meta name="description" content="Luden — Play, Ex Nihilo. Less formula, more experiment. 모바일 게임과 앱을 만드는 스튜디오." />
+  <meta name="theme-color" content="#0d0e10" />
+  <meta name="color-scheme" content="dark" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://luden.app/" />
+  <meta property="og:title" content="Luden — Play, Ex Nihilo." />
+  <meta property="og:description" content="Less formula, more experiment." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600;700&family=Space+Mono:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="module" src="/main.js"></script>
+</head>
+<body>
+  <!-- Shared full-bleed CRT shader background (both layouts) -->
+  <canvas class="crt-canvas" id="crt-canvas" aria-hidden="true"></canvas>
+
+  <!-- ============================== DESKTOP ============================== -->
+  <div class="layout-desktop">
+    <!-- Global shell overlay -->
+    <div class="d-shell" aria-hidden="true">
+      <div class="d-shell__row d-shell__row--top">
+        <div class="d-shell__brand">
+          <span class="d-shell__dot anim-pulse"></span>
+          <span class="t-label-md">Luden — 01</span>
+        </div>
+        <div class="d-shell__telemetry t-label-sm">
+          <span class="d-shell__gl">GL_CONTEXT: ACTIVE</span>
+          <span class="c-outline">|</span>
+          <span class="c-primary-fixed-dim" data-fps data-fps-format="desktop">60 FPS</span>
+        </div>
+      </div>
+      <div class="d-shell__row d-shell__row--bottom">
+        <div class="d-shell__motto t-label-sm">
+          <span class="d-shell__motto-title t-label-md">Play, Ex Nihilo</span>
+          <span class="d-shell__motto-sub">Shader Toy // V.0.4.9_ALPHA</span>
+        </div>
+        <div class="d-shell__hint t-label-sm">[CLICK &amp; HOLD TO CHARGE]</div>
+      </div>
+    </div>
+
+    <main class="d-main">
+      <div class="d-vignette" aria-hidden="true"></div>
+      <canvas class="d-phosphor" id="phosphor-canvas" aria-hidden="true"></canvas>
+
+      <div class="d-hud">
+        <header class="d-header" aria-hidden="true">
+          <div class="d-chip d-chip--credit t-label-md">
+            <span class="d-credit-dot anim-pulse"></span>
+            <span class="c-secondary tracking-widest">CREDIT 01</span>
+            <span class="c-outline-variant fw-bold">//</span>
+            <span class="c-tertiary-fixed-dim tracking-wider anim-blink">INSERT COIN [0]</span>
+          </div>
+          <div class="d-chip d-chip--stage t-label-sm">
+            <span class="fw-bold">STAGE: 01</span>
+            <span class="c-outline-variant">/</span>
+            <span class="c-on-surface-variant">CHIP: 16-BIT</span>
+            <span class="c-outline-variant">/</span>
+            <span class="d-hiscore">HI-SCORE: 999990</span>
+          </div>
+        </header>
+
+        <section class="d-stage">
+          <div class="d-badge t-label-sm" aria-hidden="true">
+            <span class="c-primary-container">▶</span>
+            <span>[ CO-OP READY // LVL MAX ]</span>
+            <span class="d-badge__dot">●</span>
+          </div>
+
+          <h1 class="d-title">
+            Luden
+            <span class="d-title__tm">TM</span>—
+            <br />
+            <span class="d-title__glow">
+              Play, Ex Nihilo.
+            </span>
+          </h1>
+
+          <p class="d-slogan t-label-md">“LESS FORMULA, MORE EXPERIMENT.”</p>
+
+          <p class="d-copy">
+            정해진 공식보다 새로운 시도를 추구합니다.<br />
+            어두운 오락실 브라운관 모니터 앞 심장을 뛰게 하던 90년대 서브컬처 매니악함을 모바일 게임과 앱으로 부활시킵니다.
+          </p>
+
+          <div class="d-audio" aria-hidden="true">
+            <div class="d-audio__bar bar-1"></div>
+            <div class="d-audio__bar bar-2"></div>
+            <div class="d-audio__bar bar-3"></div>
+            <div class="d-audio__bar bar-4"></div>
+            <div class="d-audio__bar bar-5"></div>
+            <div class="d-audio__bar bar-6"></div>
+            <span class="d-audio__label t-label-sm">YM2612 // ACTIVE</span>
+          </div>
+
+          <div class="d-actions">
+            <button class="d-start t-label-md" id="press-start-btn" type="button">
+              <span class="d-start__icon" aria-hidden="true">🕹️</span>
+              <span>PRESS START (EXPLORE)</span>
+            </button>
+            <button class="d-roster t-label-md" type="button">[ ARCADE ROSTER ]</button>
+          </div>
+        </section>
+
+        <footer class="d-footer t-label-sm" aria-hidden="true">
+          <div class="d-chip d-chip--location">
+            <span class="d-location__square"></span>
+            <span class="c-on-surface tracking-wider">■ SEOUL / TOKYO — 90s ARCADE LAB</span>
+          </div>
+          <div class="d-chip d-chip--state">
+            <span class="d-state__shader">CRT SCANLINE SHADER ON</span>
+            <span class="d-state__sep c-outline-variant">|</span>
+            <span class="c-on-surface-variant">CLICK &amp; HOLD TO CHARGE PHOSPHOR</span>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================== MOBILE ============================== -->
+  <div class="layout-mobile">
+    <div class="m-container">
+      <div class="m-scanlines" aria-hidden="true"></div>
+      <div class="m-vignette" aria-hidden="true"></div>
+
+      <div class="m-hud" aria-hidden="true">
+        <div class="m-hud__row t-label-sm m-hud__row--top">
+          <div class="m-credit">
+            <span class="ping-dot ping-dot--8"></span>
+            <span class="fw-bold tracking-widest">● CREDIT 01</span>
+            <span class="m-credit__coin c-on-surface-variant">// INSERT COIN [0]</span>
+          </div>
+          <div class="m-hiscore">HI-SCORE <span class="c-primary fw-bold">999990</span></div>
+        </div>
+        <div class="m-hud__row t-label-sm m-hud__row--bottom">
+          <div class="m-hud__group">
+            <span class="m-stage">STAGE: 01</span>
+            <span class="m-tiny c-secondary-fixed">16-BIT FM SYNTH</span>
+          </div>
+          <div class="m-hud__group m-hud__group--fps">
+            <span class="m-tiny c-outline">FPS</span>
+            <span class="m-tiny c-primary-fixed fw-bold" data-fps data-fps-format="mobile">60.0</span>
+          </div>
+        </div>
+      </div>
+
+      <main class="m-hero">
+        <div class="m-hero__inner">
+          <div class="m-hero__top" aria-hidden="true">
+            <span class="m-badge t-label-sm">
+              <span class="ping-dot ping-dot--6"></span>● CO-OP READY // LVL MAX
+            </span>
+            <span class="m-est">EST. 2025</span>
+          </div>
+
+          <div class="m-hero__center">
+            <h1 class="m-title">Luden —</h1>
+            <div class="m-tagline anim-pulse">Play, Ex Nihilo.</div>
+            <div class="m-manifesto">
+              <p class="m-slogan t-label-md">“LESS FORMULA, MORE EXPERIMENT.”</p>
+              <p class="m-copy">정해진 공식보다 새로운 시도를 추구합니다.</p>
+            </div>
+          </div>
+
+          <div class="m-actions">
+            <button class="m-start t-label-md" type="button">
+              <svg class="m-icon m-icon--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8zM6 15h2v-2h2v-2H8V9H6v2H4v2h2v2z"/><circle cx="14.5" cy="13.5" r="1.5"/><circle cx="18.5" cy="10.5" r="1.5"/></svg>
+              <span class="m-start__label">PRESS START (EXPLORE)</span>
+              <svg class="m-icon m-icon--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+              <span class="m-start__shine" aria-hidden="true"></span>
+            </button>
+            <a class="m-contact t-label-sm" href="mailto:contact@luden.studio">
+              contact@luden.studio
+              <svg class="m-icon m-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z"/></svg>
+            </a>
+            <div class="m-footer t-label-sm">
+              <span class="m-tiny tracking-wider">© LUDEN STUDIO // SEOUL</span>
+              <span class="m-tiny tracking-wider m-footer__hint" aria-hidden="true">TAP &amp; HOLD TO CHARGE // DRAG CRT</span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <div class="m-spacer" aria-hidden="true"></div>
+    </div>
+  </div>
+</body>
+</html>
