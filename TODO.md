@@ -16,4 +16,4 @@
 - [ ] **문구 정돈**: 전체 카피 검토
   - `contact@luden.studio` → 실제로 받을 수 있는 주소로 확인·교체 (도메인이 luden.app과 다름)
 - [ ] **공유 미리보기**: `og:image` 추가
-- [ ] **배포 자동화 시크릿 등록**: GitHub 저장소에 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` 추가 (`main` 푸시 시 `.github/workflows/deploy.yml`이 배포)
+- [x] **배포 자동화 시크릿 등록**: GitHub 저장소에 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` 추가 (`main` 푸시 시 `.github/workflows/deploy.yml`이 배포)
