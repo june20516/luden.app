@@ -56,11 +56,14 @@ html {
   -webkit-text-size-adjust: 100%;
   background-color: var(--c-surface-lowest);
   line-height: 1.5;
+  /* Disables the iOS / macOS rubber-band bounce; only the root element's value applies to the viewport. */
+  overscroll-behavior: none;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 24px;
@@ -461,8 +464,50 @@ html:not(.is-sound-on) .d-audio__bar { animation-play-state: paused; opacity: 0.
 .d-audio__toggle:hover,
 .d-audio__toggle[aria-pressed="true"] { color: var(--c-secondary); }
 
-.m-sound { letter-spacing: 0.1em; }
-.m-sound[aria-pressed="true"] { color: var(--c-primary-fixed); }
+/* Mobile sound toggle: sized like the CO-OP badge below it. */
+.m-sound {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: var(--space-sm);
+  padding: 0.125rem var(--space-sm);
+  border: 1px solid rgba(147, 143, 153, 0.35);
+  border-radius: var(--radius);
+  background: rgba(13, 14, 16, 0.6);
+  color: var(--c-outline);
+  letter-spacing: 0.05em;
+  transition: color 150ms var(--ease-standard), border-color 150ms var(--ease-standard);
+}
+
+/* Invisible hit area so the small chip is still easy to tap (about 36px tall). */
+.m-sound::before {
+  content: "";
+  position: absolute;
+  inset: -0.5rem -0.25rem;
+}
+
+.m-sound[aria-pressed="true"] {
+  color: var(--c-secondary);
+  border-color: var(--c-secondary);
+}
+
+/* Half-size copies of the desktop bars. */
+.m-sound__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.75rem;
+}
+
+.m-sound__bars .d-audio__bar { width: 2px; }
+.m-sound__bars .bar-1 { height: 0.25rem; }
+.m-sound__bars .bar-2 { height: 0.625rem; }
+.m-sound__bars .bar-3 { height: 0.375rem; }
+.m-sound__bars .bar-4 { height: 0.75rem; }
+.m-sound__bars .bar-5 { height: 0.5rem; }
+.m-sound__bars .bar-6 { height: 0.25rem; }
 
 .d-actions {
   margin-top: var(--space-sm);
@@ -501,23 +546,37 @@ html:not(.is-sound-on) .d-audio__bar { animation-play-state: paused; opacity: 0.
 
 .d-start:hover .d-start__icon { transform: scale(1.25); }
 
+/* Contact: the address is plain, selectable text; only the envelope opens the mail app. */
 .d-contact {
-  display: inline-block;
-  padding: var(--space-sm) var(--space-md);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.25rem 0.25rem 0.25rem var(--space-md);
   border-radius: var(--radius);
   background: rgba(41, 42, 44, 0.4);
   color: var(--c-secondary);
-  letter-spacing: 0.1em;
-  text-decoration: underline;
-  text-decoration-color: var(--c-secondary);
-  text-underline-offset: 8px;
+  letter-spacing: 0.05em;
+}
+
+.d-contact__address { -webkit-user-select: text; user-select: text; }
+
+.d-contact__mail {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius);
+  color: var(--c-secondary);
   transition: color 150ms var(--ease-standard), background-color 150ms var(--ease-standard);
 }
 
-.d-contact:hover {
+.d-contact__mail:hover,
+.d-contact__mail:focus-visible {
   color: var(--c-primary);
   background: rgba(41, 42, 44, 0.8);
 }
+
+.d-contact__icon { width: 18px; height: 18px; fill: currentColor; }
 
 .d-footer {
   width: 100%;
@@ -659,10 +718,22 @@ html:not(.is-sound-on) .d-audio__bar { animation-play-state: paused; opacity: 0.
   font-size: 10px;
 }
 
+/* A steady dot with a ring that pings out of it. */
 .ping-dot {
+  position: relative;
   display: inline-block;
+  flex-shrink: 0;
   border-radius: 9999px;
   background: var(--c-primary-fixed);
+}
+
+.ping-dot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0.75;
   animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
@@ -676,7 +747,7 @@ html:not(.is-sound-on) .d-audio__bar { animation-play-state: paused; opacity: 0.
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  padding: var(--space-lg) var(--space-md) var(--space-md);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
 }
 
 .m-hero__inner {
@@ -817,10 +888,22 @@ html:not(.is-sound-on) .d-audio__bar { animation-play-state: paused; opacity: 0.
   align-items: center;
   gap: 0.25rem;
   color: var(--c-on-surface-variant);
-  transition: all 150ms var(--ease-standard);
 }
 
-.m-contact:hover { color: var(--c-primary); }
+.m-contact__address { -webkit-user-select: text; user-select: text; }
+
+/* 14px icon inside a 32px tap target. */
+.m-contact__mail {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--c-on-surface-variant);
+  transition: color 150ms var(--ease-standard);
+}
+
+.m-contact__mail:hover,
+.m-contact__mail:active { color: var(--c-primary); }
 
 .m-footer {
   width: 100%;
@@ -850,9 +933,14 @@ html:not(.is-sound-on) .d-audio__bar { animation-play-state: paused; opacity: 0.
 @media (prefers-reduced-motion: reduce) {
   .anim-pulse,
   .anim-blink,
-  .d-audio__bar,
-  .ping-dot {
+  .d-audio__bar {
     animation: none;
+  }
+
+  /* Keep the steady dot, hide the ring. */
+  .ping-dot::before {
+    animation: none;
+    opacity: 0;
   }
 
   .d-start,

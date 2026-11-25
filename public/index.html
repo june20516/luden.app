@@ -109,7 +109,12 @@
               <span class="d-start__icon" aria-hidden="true">🕹️</span>
               <span>PRESS START (EXPLORE)</span>
             </button>
-            <a class="d-contact t-label-md" href="mailto:contact@luden.app">[ CONTACT US ]</a>
+            <div class="d-contact t-label-md">
+              <span class="d-contact__address">contact@luden.app</span>
+              <a class="d-contact__mail" href="mailto:contact@luden.app" aria-label="Email contact@luden.app">
+                <svg class="d-contact__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
+              </a>
+            </div>
           </div>
         </section>
 
@@ -134,21 +139,20 @@
       <div class="m-scanlines" aria-hidden="true"></div>
       <div class="m-vignette" aria-hidden="true"></div>
 
-      <div class="m-hud">
-        <div class="m-hud__row t-label-sm m-hud__row--top" aria-hidden="true">
+      <div class="m-hud" aria-hidden="true">
+        <div class="m-hud__row t-label-sm m-hud__row--top">
           <div class="m-credit">
             <span class="ping-dot ping-dot--8"></span>
-            <span class="fw-bold tracking-widest">● CREDIT 01</span>
+            <span class="fw-bold tracking-widest">CREDIT 01</span>
             <span class="m-credit__coin c-on-surface-variant">// INSERT COIN [0]</span>
           </div>
           <div class="m-hiscore">HI-SCORE <span class="c-primary fw-bold">999990</span></div>
         </div>
         <div class="m-hud__row t-label-sm m-hud__row--bottom">
           <div class="m-hud__group">
-            <span class="m-stage" aria-hidden="true">STAGE: 01</span>
-            <button class="m-sound m-tiny c-secondary-fixed" type="button" data-sound-toggle aria-pressed="false">SOUND // <span data-sound-state>OFF</span></button>
+            <span class="m-stage">STAGE: 01</span>
           </div>
-          <div class="m-hud__group m-hud__group--fps" aria-hidden="true">
+          <div class="m-hud__group m-hud__group--fps">
             <span class="m-tiny c-outline">FPS</span>
             <span class="m-tiny c-primary-fixed fw-bold" data-fps data-fps-format="mobile">60.0</span>
           </div>
@@ -157,11 +161,22 @@
 
       <main class="m-hero">
         <div class="m-hero__inner">
+          <button class="m-sound t-label-sm" type="button" data-sound-toggle aria-pressed="false">
+            <span class="m-sound__bars" aria-hidden="true">
+              <span class="d-audio__bar bar-1"></span>
+              <span class="d-audio__bar bar-2"></span>
+              <span class="d-audio__bar bar-3"></span>
+              <span class="d-audio__bar bar-4"></span>
+              <span class="d-audio__bar bar-5"></span>
+              <span class="d-audio__bar bar-6"></span>
+            </span>
+            <span>SOUND // <span data-sound-state>OFF</span></span>
+          </button>
           <div class="m-hero__top" aria-hidden="true">
             <span class="m-badge t-label-sm">
-              <span class="ping-dot ping-dot--6"></span>● CO-OP READY // LVL MAX
+              <span class="ping-dot ping-dot--6"></span>CO-OP READY // LVL MAX
             </span>
-            <span class="m-est">EST. 2025</span>
+            <span class="m-est">EST. 2026</span>
           </div>
 
           <div class="m-hero__center">
@@ -184,10 +199,12 @@
               <svg class="m-icon m-icon--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
               <span class="m-start__shine" aria-hidden="true"></span>
             </button>
-            <a class="m-contact t-label-sm" href="mailto:contact@luden.app">
-              contact@luden.app
-              <svg class="m-icon m-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z"/></svg>
-            </a>
+            <div class="m-contact t-label-sm">
+              <span class="m-contact__address">contact@luden.app</span>
+              <a class="m-contact__mail" href="mailto:contact@luden.app" aria-label="Email contact@luden.app">
+                <svg class="m-icon m-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
+              </a>
+            </div>
             <div class="m-footer t-label-sm">
               <span class="m-tiny tracking-wider">© LUDEN STUDIO</span>
               <span class="m-tiny tracking-wider m-footer__hint" aria-hidden="true">TAP &amp; HOLD TO CHARGE // DRAG CRT</span>

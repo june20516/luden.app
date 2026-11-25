@@ -184,6 +184,30 @@ function bindInput() {
   window.addEventListener("touchend", () => input.setPressed(false));
   window.addEventListener("touchcancel", () => input.setPressed(false));
   window.addEventListener("blur", () => input.setPressed(false));
+
+  preventTouchContextMenu();
+}
+
+/** Links and the contact address keep their native long-press behavior. */
+const NATIVE_CONTEXT_MENU_SELECTOR = "a, .d-contact__address, .m-contact__address";
+
+/**
+ * A long press is "hold to charge", so it must not open a context menu or interrupt the touch.
+ * Only touch-initiated menus are blocked; a mouse right-click on desktop is left alone.
+ */
+function preventTouchContextMenu() {
+  let activeTouches = 0;
+  const updateTouches = (event) => { activeTouches = event.touches.length; };
+  window.addEventListener("touchstart", updateTouches, { passive: true });
+  window.addEventListener("touchend", updateTouches);
+  window.addEventListener("touchcancel", updateTouches);
+
+  window.addEventListener("contextmenu", (event) => {
+    const isTouch = activeTouches > 0 || event.pointerType === "touch";
+    if (!isTouch) return;
+    if (event.target instanceof Element && event.target.closest(NATIVE_CONTEXT_MENU_SELECTOR)) return;
+    event.preventDefault();
+  });
 }
 
 /* ------------------------------------------------------------------ FPS readout */
