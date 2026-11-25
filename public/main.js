@@ -10,6 +10,8 @@
  *  - No WebGL / lost context: falls back to a static CSS background.
  */
 
+import { createSoundEngine } from "./sound.js";
+
 const MOBILE_QUERY = window.matchMedia("(max-width: 767px)");
 const REDUCED_MOTION_QUERY = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -117,6 +119,11 @@ function frameIndependentRate(ratePerFrame, deltaSeconds) {
   return 1 - Math.pow(1 - ratePerFrame, deltaSeconds * 60);
 }
 
+/** The same easing as a continuous time constant (seconds), for Web Audio's setTargetAtTime. */
+function rateToTimeConstant(ratePerFrame) {
+  return -1 / (60 * Math.log(1 - ratePerFrame));
+}
+
 /**
  * Seconds between two frame timestamps, clamped to [0, 0.1].
  * rAF timestamps can precede a performance.now() taken earlier in the same frame,
@@ -177,6 +184,30 @@ function bindInput() {
   window.addEventListener("touchend", () => input.setPressed(false));
   window.addEventListener("touchcancel", () => input.setPressed(false));
   window.addEventListener("blur", () => input.setPressed(false));
+
+  preventTouchContextMenu();
+}
+
+/** Links and the contact address keep their native long-press behavior. */
+const NATIVE_CONTEXT_MENU_SELECTOR = "a, .d-contact__address, .m-contact__address";
+
+/**
+ * A long press is "hold to charge", so it must not open a context menu or interrupt the touch.
+ * Only touch-initiated menus are blocked; a mouse right-click on desktop is left alone.
+ */
+function preventTouchContextMenu() {
+  let activeTouches = 0;
+  const updateTouches = (event) => { activeTouches = event.touches.length; };
+  window.addEventListener("touchstart", updateTouches, { passive: true });
+  window.addEventListener("touchend", updateTouches);
+  window.addEventListener("touchcancel", updateTouches);
+
+  window.addEventListener("contextmenu", (event) => {
+    const isTouch = activeTouches > 0 || event.pointerType === "touch";
+    if (!isTouch) return;
+    if (event.target instanceof Element && event.target.closest(NATIVE_CONTEXT_MENU_SELECTOR)) return;
+    event.preventDefault();
+  });
 }
 
 /* ------------------------------------------------------------------ FPS readout */
@@ -489,6 +520,37 @@ function startPhosphorParticles(canvas, startButton) {
   });
 }
 
+/* ------------------------------------------------------------------ sound */
+
+/** Sound toggles (desktop and mobile) share one engine; holding the pointer plays the charge tone. */
+function bindSound() {
+  const toggles = document.querySelectorAll("[data-sound-toggle]");
+  if (toggles.length === 0 || !("AudioContext" in window)) return;
+
+  const sound = createSoundEngine({
+    chargeTimeConstant: rateToTimeConstant(CHARGE_RATE),
+    getReleaseTimeConstant: () => rateToTimeConstant(RELEASE_RATE[currentVariant()]),
+  });
+
+  function render() {
+    toggles.forEach((toggle) => {
+      toggle.setAttribute("aria-pressed", String(sound.isEnabled));
+      toggle.querySelector("[data-sound-state]").textContent = sound.isEnabled ? "ON" : "OFF";
+    });
+    document.documentElement.classList.toggle("is-sound-on", sound.isEnabled);
+  }
+
+  toggles.forEach((toggle) => {
+    toggle.addEventListener("click", () => {
+      sound.setEnabled(!sound.isEnabled);
+      render();
+    });
+  });
+
+  input.listeners.add(() => sound.setCharging(input.isPressed));
+  render();
+}
+
 /* ------------------------------------------------------------------ boot */
 
 bindInput();
@@ -502,3 +564,5 @@ const phosphorCanvas = document.getElementById("phosphor-canvas");
 if (phosphorCanvas) {
   startPhosphorParticles(phosphorCanvas, document.getElementById("press-start-btn"));
 }
+
+bindSound();
