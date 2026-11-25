@@ -10,6 +10,8 @@
  *  - No WebGL / lost context: falls back to a static CSS background.
  */
 
+import { createSoundEngine } from "./sound.js";
+
 const MOBILE_QUERY = window.matchMedia("(max-width: 767px)");
 const REDUCED_MOTION_QUERY = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -115,6 +117,11 @@ function currentVariant() {
 function frameIndependentRate(ratePerFrame, deltaSeconds) {
   if (ratePerFrame >= 1) return 1;
   return 1 - Math.pow(1 - ratePerFrame, deltaSeconds * 60);
+}
+
+/** The same easing as a continuous time constant (seconds), for Web Audio's setTargetAtTime. */
+function rateToTimeConstant(ratePerFrame) {
+  return -1 / (60 * Math.log(1 - ratePerFrame));
 }
 
 /**
@@ -489,6 +496,37 @@ function startPhosphorParticles(canvas, startButton) {
   });
 }
 
+/* ------------------------------------------------------------------ sound */
+
+/** Sound toggles (desktop and mobile) share one engine; holding the pointer plays the charge tone. */
+function bindSound() {
+  const toggles = document.querySelectorAll("[data-sound-toggle]");
+  if (toggles.length === 0 || !("AudioContext" in window)) return;
+
+  const sound = createSoundEngine({
+    chargeTimeConstant: rateToTimeConstant(CHARGE_RATE),
+    getReleaseTimeConstant: () => rateToTimeConstant(RELEASE_RATE[currentVariant()]),
+  });
+
+  function render() {
+    toggles.forEach((toggle) => {
+      toggle.setAttribute("aria-pressed", String(sound.isEnabled));
+      toggle.querySelector("[data-sound-state]").textContent = sound.isEnabled ? "ON" : "OFF";
+    });
+    document.documentElement.classList.toggle("is-sound-on", sound.isEnabled);
+  }
+
+  toggles.forEach((toggle) => {
+    toggle.addEventListener("click", () => {
+      sound.setEnabled(!sound.isEnabled);
+      render();
+    });
+  });
+
+  input.listeners.add(() => sound.setCharging(input.isPressed));
+  render();
+}
+
 /* ------------------------------------------------------------------ boot */
 
 bindInput();
@@ -502,3 +540,5 @@ const phosphorCanvas = document.getElementById("phosphor-canvas");
 if (phosphorCanvas) {
   startPhosphorParticles(phosphorCanvas, document.getElementById("press-start-btn"));
 }
+
+bindSound();

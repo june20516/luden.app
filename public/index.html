@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Luden — Play, Ex Nihilo.</title>
-  <meta name="description" content="Luden — Play, Ex Nihilo. Less formula, more experiment. 모바일 게임과 앱을 만드는 스튜디오." />
+  <meta name="description" content="Luden — Play, Ex Nihilo. Less formula, more experiment. A studio making mobile games and apps." />
   <meta name="theme-color" content="#0d0e10" />
   <meta name="color-scheme" content="dark" />
   <meta property="og:type" content="website" />
@@ -75,8 +75,7 @@
           </div>
 
           <h1 class="d-title">
-            Luden
-            <span class="d-title__tm">TM</span>—
+            Luden —
             <br />
             <span class="d-title__glow">
               Play, Ex Nihilo.
@@ -85,19 +84,24 @@
 
           <p class="d-slogan t-label-md">“LESS FORMULA, MORE EXPERIMENT.”</p>
 
-          <p class="d-copy">
-            정해진 공식보다 새로운 시도를 추구합니다.<br />
-            어두운 오락실 브라운관 모니터 앞 심장을 뛰게 하던 90년대 서브컬처 매니악함을 모바일 게임과 앱으로 부활시킵니다.
+          <p class="d-copy" data-i18n="manifesto">
+            We chase new experiments over set formulas.<br />
+            We transmute the fun we dreamed of and the ideas we held onto into something real.<br />
+            May there be joy in everyone's life.
           </p>
 
-          <div class="d-audio" aria-hidden="true">
-            <div class="d-audio__bar bar-1"></div>
-            <div class="d-audio__bar bar-2"></div>
-            <div class="d-audio__bar bar-3"></div>
-            <div class="d-audio__bar bar-4"></div>
-            <div class="d-audio__bar bar-5"></div>
-            <div class="d-audio__bar bar-6"></div>
-            <span class="d-audio__label t-label-sm">YM2612 // ACTIVE</span>
+          <div class="d-audio">
+            <div class="d-audio__bars" aria-hidden="true">
+              <div class="d-audio__bar bar-1"></div>
+              <div class="d-audio__bar bar-2"></div>
+              <div class="d-audio__bar bar-3"></div>
+              <div class="d-audio__bar bar-4"></div>
+              <div class="d-audio__bar bar-5"></div>
+              <div class="d-audio__bar bar-6"></div>
+            </div>
+            <button class="d-audio__toggle t-label-sm" type="button" data-sound-toggle aria-pressed="false">
+              SOUND // <span data-sound-state>OFF</span>
+            </button>
           </div>
 
           <div class="d-actions">
@@ -105,14 +109,14 @@
               <span class="d-start__icon" aria-hidden="true">🕹️</span>
               <span>PRESS START (EXPLORE)</span>
             </button>
-            <button class="d-roster t-label-md" type="button">[ ARCADE ROSTER ]</button>
+            <a class="d-contact t-label-md" href="mailto:contact@luden.app">[ CONTACT US ]</a>
           </div>
         </section>
 
         <footer class="d-footer t-label-sm" aria-hidden="true">
           <div class="d-chip d-chip--location">
             <span class="d-location__square"></span>
-            <span class="c-on-surface tracking-wider">■ SEOUL / TOKYO — 90s ARCADE LAB</span>
+            <span class="c-on-surface tracking-wider">INDEPENDENT STUDIO — GAMES, APPS &amp; EXPERIMENTS</span>
           </div>
           <div class="d-chip d-chip--state">
             <span class="d-state__shader">CRT SCANLINE SHADER ON</span>
@@ -130,8 +134,8 @@
       <div class="m-scanlines" aria-hidden="true"></div>
       <div class="m-vignette" aria-hidden="true"></div>
 
-      <div class="m-hud" aria-hidden="true">
-        <div class="m-hud__row t-label-sm m-hud__row--top">
+      <div class="m-hud">
+        <div class="m-hud__row t-label-sm m-hud__row--top" aria-hidden="true">
           <div class="m-credit">
             <span class="ping-dot ping-dot--8"></span>
             <span class="fw-bold tracking-widest">● CREDIT 01</span>
@@ -141,10 +145,10 @@
         </div>
         <div class="m-hud__row t-label-sm m-hud__row--bottom">
           <div class="m-hud__group">
-            <span class="m-stage">STAGE: 01</span>
-            <span class="m-tiny c-secondary-fixed">16-BIT FM SYNTH</span>
+            <span class="m-stage" aria-hidden="true">STAGE: 01</span>
+            <button class="m-sound m-tiny c-secondary-fixed" type="button" data-sound-toggle aria-pressed="false">SOUND // <span data-sound-state>OFF</span></button>
           </div>
-          <div class="m-hud__group m-hud__group--fps">
+          <div class="m-hud__group m-hud__group--fps" aria-hidden="true">
             <span class="m-tiny c-outline">FPS</span>
             <span class="m-tiny c-primary-fixed fw-bold" data-fps data-fps-format="mobile">60.0</span>
           </div>
@@ -165,7 +169,11 @@
             <div class="m-tagline anim-pulse">Play, Ex Nihilo.</div>
             <div class="m-manifesto">
               <p class="m-slogan t-label-md">“LESS FORMULA, MORE EXPERIMENT.”</p>
-              <p class="m-copy">정해진 공식보다 새로운 시도를 추구합니다.</p>
+              <p class="m-copy" data-i18n="manifesto">
+                We chase new experiments over set formulas.<br />
+                We transmute the fun we dreamed of and the ideas we held onto into something real.<br />
+                May there be joy in everyone's life.
+              </p>
             </div>
           </div>
 
@@ -176,12 +184,12 @@
               <svg class="m-icon m-icon--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
               <span class="m-start__shine" aria-hidden="true"></span>
             </button>
-            <a class="m-contact t-label-sm" href="mailto:contact@luden.studio">
-              contact@luden.studio
+            <a class="m-contact t-label-sm" href="mailto:contact@luden.app">
+              contact@luden.app
               <svg class="m-icon m-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v2h6.59L4 18.59 5.41 20 17 8.41V15h2V5z"/></svg>
             </a>
             <div class="m-footer t-label-sm">
-              <span class="m-tiny tracking-wider">© LUDEN STUDIO // SEOUL</span>
+              <span class="m-tiny tracking-wider">© LUDEN STUDIO</span>
               <span class="m-tiny tracking-wider m-footer__hint" aria-hidden="true">TAP &amp; HOLD TO CHARGE // DRAG CRT</span>
             </div>
           </div>
@@ -191,5 +199,7 @@
       <div class="m-spacer" aria-hidden="true"></div>
     </div>
   </div>
+
+  <script src="/i18n.js"></script>
 </body>
 </html>
