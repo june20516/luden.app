@@ -8,9 +8,12 @@
  *  - Low-end devices: lower starting render scale and automatic downscaling when FPS drops.
  *  - Scanline density is defined in CSS pixels so it stays identical at any render scale.
  *  - No WebGL / lost context: falls back to a static CSS background.
+ *  - Screen switches (see router.js) pulse a "channel change" glitch: torn scanlines, a rolling band and static.
  */
 
 import { createSoundEngine } from "./sound.js";
+import { renderRoster } from "./roster.js";
+import { startRouter } from "./router.js";
 
 const MOBILE_QUERY = window.matchMedia("(max-width: 767px)");
 const REDUCED_MOTION_QUERY = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -25,6 +28,10 @@ const SCANLINE_RADIANS_PER_CSS_PX = 1.5;
 
 /** Time used for the still frame when motion is reduced. */
 const FROZEN_TIME_SECONDS = 2.4;
+
+/** Channel-switch glitch: rises to full strength at GLITCH_PEAK, then fades out by the end. */
+const GLITCH_DURATION_MS = 900;
+const GLITCH_PEAK = 0.3;
 
 const VERTEX_SHADER = `
 attribute vec2 a_position;
@@ -46,6 +53,11 @@ uniform float u_press;        // 0..1 charge amount
 uniform float u_scanDensity;  // scanline radians per canvas pixel
 uniform float u_flicker;      // 0 = off, 1 = on
 uniform float u_variant;      // 0 = desktop composition, 1 = mobile composition
+uniform float u_glitch;       // 0..1 channel-switch glitch strength
+
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
@@ -57,6 +69,11 @@ void main() {
   // CRT curvature distortion
   vec2 cc = uv - 0.5;
   vec2 crtUv = uv + cc * (dot(cc, cc) * 0.12);
+
+  // Channel switch: some scanline rows tear sideways, re-rolled 24 times a second
+  float row = floor(uv.y * 120.0);
+  float rowNoise = hash(vec2(row, floor(u_time * 24.0)));
+  crtUv.x += (rowNoise - 0.5) * 0.12 * u_glitch * step(0.6, rowNoise);
 
   vec3 crtDark = vec3(0.06, 0.05, 0.10);
   vec3 arcadePink = vec3(1.0, 0.16, 0.43);
@@ -96,6 +113,11 @@ void main() {
     col *= scanMask;
     col += shape * glowColor;
   }
+
+  // Channel switch: a bright band rolling down the tube plus static snow
+  float band = 1.0 - smoothstep(0.0, 0.08, abs(fract(uv.y + u_time * 1.7) - 0.5));
+  float snow = hash(floor(gl_FragCoord.xy / 2.0) + fract(u_time) * 97.0);
+  col += (band * 0.35 + snow * 0.2) * u_glitch * vec3(0.85, 0.9, 1.0);
 
   // CRT tube border darkness
   float vignette = (1.0 - smoothstep(0.46, 0.5, abs(uv.x - 0.5))) * (1.0 - smoothstep(0.46, 0.5, abs(uv.y - 0.5)));
@@ -188,8 +210,8 @@ function bindInput() {
   preventTouchContextMenu();
 }
 
-/** Links and the contact address keep their native long-press behavior. */
-const NATIVE_CONTEXT_MENU_SELECTOR = "a, .d-contact__address, .m-contact__address";
+/** External links and the contact address keep their native long-press behavior; PRESS START stays "hold to charge". */
+const NATIVE_CONTEXT_MENU_SELECTOR = "a:not([data-route-link]), .d-contact__address, .m-contact__address";
 
 /**
  * A long press is "hold to charge", so it must not open a context menu or interrupt the touch.
@@ -321,18 +343,28 @@ function createProgram(gl) {
   gl.enableVertexAttribArray(positionLocation);
   gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-  const uniformNames = ["u_time", "u_resolution", "u_pointer", "u_press", "u_scanDensity", "u_flicker", "u_variant"];
+  const uniformNames = ["u_time", "u_resolution", "u_pointer", "u_press", "u_scanDensity", "u_flicker", "u_variant", "u_glitch"];
   const uniforms = Object.fromEntries(uniformNames.map((name) => [name, gl.getUniformLocation(program, name)]));
   return { uniforms };
 }
 
+/** Glitch envelope for a pulse started at startTime: linear rise, then an eased fade. */
+function glitchAmount(now, startTime) {
+  const progress = (now - startTime) / GLITCH_DURATION_MS;
+  if (progress < 0 || progress >= 1) return 0;
+  if (progress < GLITCH_PEAK) return progress / GLITCH_PEAK;
+  const fade = 1 - (progress - GLITCH_PEAK) / (1 - GLITCH_PEAK);
+  return fade * fade;
+}
+
+/** @returns {{ pulseGlitch: () => void } | null} null when WebGL is unavailable. */
 function startCrtShader(canvas) {
   const gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "low-power" })
     || canvas.getContext("experimental-webgl");
-  if (!gl) return false;
+  if (!gl) return null;
 
   let program = createProgram(gl);
-  if (!program) return false;
+  if (!program) return null;
 
   const fpsMeter = createFpsMeter();
   const governor = createQualityGovernor();
@@ -342,6 +374,7 @@ function startCrtShader(canvas) {
   let lastFrameTime = startTime;
   let frameRequest = 0;
   let contextLost = false;
+  let glitchStartTime = -Infinity;
 
   function resizeCanvas() {
     const scale = governor.scale;
@@ -387,6 +420,7 @@ function startCrtShader(canvas) {
     gl.uniform1f(uniforms.u_scanDensity, SCANLINE_RADIANS_PER_CSS_PX / scale);
     gl.uniform1f(uniforms.u_flicker, reducedMotion ? 0 : 1);
     gl.uniform1f(uniforms.u_variant, variant === "mobile" ? 1 : 0);
+    gl.uniform1f(uniforms.u_glitch, reducedMotion ? 0 : glitchAmount(now, glitchStartTime));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     const fps = fpsMeter.tick(now);
@@ -440,7 +474,12 @@ function startCrtShader(canvas) {
   });
 
   wake();
-  return true;
+  return {
+    pulseGlitch() {
+      glitchStartTime = performance.now();
+      requestFrame();
+    },
+  };
 }
 
 /* ------------------------------------------------------------------ phosphor particles (desktop) */
@@ -522,10 +561,13 @@ function startPhosphorParticles(canvas, startButton) {
 
 /* ------------------------------------------------------------------ sound */
 
-/** Sound toggles (desktop and mobile) share one engine; holding the pointer plays the charge tone. */
+/**
+ * Sound toggles (every screen and layout) share one engine; holding the pointer plays the charge tone.
+ * @returns {ReturnType<typeof createSoundEngine> | null}
+ */
 function bindSound() {
   const toggles = document.querySelectorAll("[data-sound-toggle]");
-  if (toggles.length === 0 || !("AudioContext" in window)) return;
+  if (toggles.length === 0 || !("AudioContext" in window)) return null;
 
   const sound = createSoundEngine({
     chargeTimeConstant: rateToTimeConstant(CHARGE_RATE),
@@ -549,14 +591,19 @@ function bindSound() {
 
   input.listeners.add(() => sound.setCharging(input.isPressed));
   render();
+  return sound;
 }
 
 /* ------------------------------------------------------------------ boot */
 
 bindInput();
 
+const rosterList = document.querySelector("[data-roster-list]");
+if (rosterList) renderRoster(rosterList);
+
 const crtCanvas = document.getElementById("crt-canvas");
-if (!crtCanvas || !startCrtShader(crtCanvas)) {
+const crtShader = crtCanvas ? startCrtShader(crtCanvas) : null;
+if (!crtShader) {
   document.documentElement.classList.add("no-webgl");
 }
 
@@ -565,4 +612,12 @@ if (phosphorCanvas) {
   startPhosphorParticles(phosphorCanvas, document.getElementById("press-start-btn"));
 }
 
-bindSound();
+const sound = bindSound();
+
+startRouter({
+  reducedMotionQuery: REDUCED_MOTION_QUERY,
+  onSwitchStart() {
+    crtShader?.pulseGlitch();
+    sound?.playChirp();
+  },
+});

@@ -4,6 +4,7 @@
  *  - Background: a soft pad (A) and an FM arpeggio (B) share one chord progression and clock.
  *  - Charge: while the pointer is held, a soft tone (C) rises one octave and the arpeggio ducks.
  *    Its pitch follows the same easing curve as the on-screen charge, so it falls back when released.
+ *  - Screen switch: a short two-note coin chirp in the arpeggio's FM voice.
  *  - Off by default; browsers only allow audio after a user gesture, so the graph is built on first enable.
  *  - Suspended while the tab is hidden.
  */
@@ -14,6 +15,7 @@ const PAD_LEVEL = 0.5;
 const ARP_LEVEL = 0.3;
 const ARP_DUCKED_LEVEL = 0.08;
 const CHARGE_LEVEL = 0.12;
+const SFX_LEVEL = 0.35;
 const MASTER_FADE_SECONDS = 0.4;
 
 /* ---------- Shared progression: both layers follow the same chord at the same time ---------- */
@@ -28,6 +30,10 @@ const STEPS_PER_CHORD = 32; // 4 seconds per chord
 const ARP_PATTERN = [0, 1, 2, 3, 2, 1];
 const SCHEDULE_AHEAD_SECONDS = 0.2;
 const SCHEDULER_INTERVAL_MS = 50;
+
+/* ---------- Screen-switch chirp: B5 then E6, a fourth up ---------- */
+const CHIRP_NOTES = [83, 88];
+const CHIRP_GAP_SECONDS = 0.07;
 
 /* ---------- Charge tone ---------- */
 const CHARGE_BASE_HZ = 130.81; // C3; a full charge reaches C4
@@ -68,14 +74,17 @@ function buildGraph() {
   const padBus = ctx.createGain();
   const arpBus = ctx.createGain();
   const chargeBus = ctx.createGain();
+  const sfxBus = ctx.createGain();
   padBus.gain.value = PAD_LEVEL;
   arpBus.gain.value = ARP_LEVEL;
   chargeBus.gain.value = CHARGE_LEVEL;
+  sfxBus.gain.value = SFX_LEVEL;
   padFilter.connect(padBus).connect(master);
   arpBus.connect(master);
   chargeBus.connect(master);
+  sfxBus.connect(master);
 
-  return { ctx, master, padFilter, arpBus, chargeBus };
+  return { ctx, master, padFilter, arpBus, chargeBus, sfxBus };
 }
 
 function playPadChord(graph, notes, startTime) {
@@ -99,8 +108,8 @@ function playPadChord(graph, notes, startTime) {
 }
 
 /** Two-operator FM note: a 2:1 modulator gives the bright bell-like tone. */
-function playFmNote(graph, frequency, startTime) {
-  const { ctx, arpBus } = graph;
+function playFmNote(graph, frequency, startTime, destination = graph.arpBus) {
+  const { ctx } = graph;
   const carrier = ctx.createOscillator();
   const modulator = ctx.createOscillator();
   const modulationDepth = ctx.createGain();
@@ -116,7 +125,7 @@ function playFmNote(graph, frequency, startTime) {
   envelope.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.22);
 
   modulator.connect(modulationDepth).connect(carrier.frequency);
-  carrier.connect(envelope).connect(arpBus);
+  carrier.connect(envelope).connect(destination);
   modulator.start(startTime);
   carrier.start(startTime);
   modulator.stop(startTime + 0.25);
@@ -233,6 +242,15 @@ export function createSoundEngine({ chargeTimeConstant, getReleaseTimeConstant }
     }
   }
 
+  /** Plays the coin chirp on its own bus, so a ducked arpeggio does not quiet it. */
+  function playChirp() {
+    if (!isEnabled || !graph) return;
+    const startTime = graph.ctx.currentTime + 0.01;
+    CHIRP_NOTES.forEach((note, index) => {
+      playFmNote(graph, midiToFrequency(note), startTime + index * CHIRP_GAP_SECONDS, graph.sfxBus);
+    });
+  }
+
   function setEnabled(enabled) {
     if (enabled === isEnabled) return;
     isEnabled = enabled;
@@ -270,5 +288,6 @@ export function createSoundEngine({ chargeTimeConstant, getReleaseTimeConstant }
     },
     setEnabled,
     setCharging,
+    playChirp,
   };
 }
